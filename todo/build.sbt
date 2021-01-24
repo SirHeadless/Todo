@@ -19,6 +19,7 @@ lazy val `todo` =
   project
     .in(file("."))
     .aggregate(
+      `cats-core`,
       domain,
       core,
       delivery,
@@ -26,13 +27,20 @@ lazy val `todo` =
       main
     )
 
+lazy val `cats-core` =
+  project
+    .in(file("00-cats-core"))
+    .settings(commonSettings: _*)
+
 lazy val domain =
   project
     .in(file("01-domain"))
+    .settings(commonSettings: _*)
 
 lazy val core =
   project
     .in(file("02-core"))
+    .dependsOn(`cats-core` % Cctt)
     .dependsOn(domain % Cctt)
     .settings(commonSettings: _*)
     .settings(
@@ -40,7 +48,8 @@ lazy val core =
         com.github.alexarchambault.`scalacheck-shapeless_1.14`,
         org.scalacheck.scalacheck,
         org.scalatest.scalatest,
-        org.scalatestplus.`scalatestplus-scalacheck`
+        org.scalatestplus.`scalacheck-1-14`,
+        org.typelevel.`discipline-scalatest`
       ).map(_ % Test)
     )
 
@@ -64,6 +73,7 @@ lazy val main =
     .settings(commonSettings: _*)
 
 lazy val commonSettings = Seq(
+  addCompilerPlugin(org.augustjune.`context-applied`),
   addCompilerPlugin(org.typelevel.`kind-projector`),
   Compile / console / scalacOptions --= Seq(
     "-Wunused:_",
