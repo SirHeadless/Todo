@@ -1,5 +1,4 @@
 import Dependencies._
-import Util._
 
 ThisBuild / organization := "com.devinsideyou"
 ThisBuild / scalaVersion := "2.13.2"
@@ -32,6 +31,12 @@ lazy val `cats-core` =
     .in(file("00-cats-core"))
     .settings(commonSettings: _*)
 
+lazy val `cats-effect` =
+  project
+    .in(file("00-cats-effect"))
+    .dependsOn(`cats-core`)
+    .settings(commonSettings: _*)
+
 lazy val domain =
   project
     .in(file("01-domain"))
@@ -40,8 +45,8 @@ lazy val domain =
 lazy val core =
   project
     .in(file("02-core"))
-    .dependsOn(`cats-core` % Cctt)
-    .dependsOn(domain % Cctt)
+    .dependsOn(`cats-core`)
+    .dependsOn(domain)
     .settings(commonSettings: _*)
     .settings(
       libraryDependencies ++= Seq(
@@ -56,20 +61,21 @@ lazy val core =
 lazy val delivery =
   project
     .in(file("03-delivery"))
-    .dependsOn(core % Cctt)
+    .dependsOn(core)
     .settings(commonSettings: _*)
 
 lazy val persistence =
   project
     .in(file("03-persistence"))
-    .dependsOn(core % Cctt)
+    .dependsOn(core)
+    .dependsOn(`cats-effect`)
     .settings(commonSettings: _*)
 
 lazy val main =
   project
     .in(file("04-main"))
-    .dependsOn(delivery % Cctt)
-    .dependsOn(persistence % Cctt)
+    .dependsOn(delivery)
+    .dependsOn(persistence)
     .settings(commonSettings: _*)
 
 lazy val commonSettings = Seq(
