@@ -9,8 +9,8 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature",
   "-language:_",
   "-unchecked",
-  // "-Wunused:_",
-  // "-Xfatal-warnings",
+  "-Wvalue-discard",
+  "-Xfatal-warnings",
   "-Ymacro-annotations"
 )
 
@@ -62,6 +62,7 @@ lazy val delivery =
   project
     .in(file("03-delivery"))
     .dependsOn(core)
+    .dependsOn(`cats-effect`)
     .settings(commonSettings: _*)
 
 lazy val persistence =
