@@ -2,19 +2,22 @@ package com.devinsideyou
 package todo
 package crud
 
+import cats.effect.Sync
+
 import java.time.format.DateTimeFormatter
 
 object DependencyGraph {
-  def dsl(
-      pattern: DateTimeFormatter
-    )(implicit
-      fancyConsole: FancyConsoleOld,
-      random: RandomOld
-    ): ControllerOld =
-    ControllerOld.dsl(
+  def dsl[F[_] : Sync] (
+    pattern: DateTimeFormatter,
+    console: Console[F],
+    random: Random[F]
+  ): Controller[F] =
+    Controller.dsl(
       pattern = pattern,
-      boundary = BoundaryOld.dsl(
-        gateway = InMemoryEntityGatewayOld.dsl
-      )
+      persistenceService = TodoPersistenceService.dsl(
+        gateway = InMemoryTodoRepository.dsl
+      ),
+      console = FancyConsole.dsl(console),
+      random = random
     )
 }

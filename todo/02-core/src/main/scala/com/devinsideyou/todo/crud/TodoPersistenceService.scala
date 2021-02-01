@@ -4,7 +4,7 @@ package crud
 
 import cats.core.{Applicative, Functor}
 
-trait Boundary[F[_]] {
+trait TodoPersistenceService[F[_]] {
   def createOne(todo: Todo.Data): F[Todo.Existing]
   def createMany(todos: Vector[Todo.Data]): F[Vector[Todo.Existing]]
 
@@ -21,11 +21,11 @@ trait Boundary[F[_]] {
   def deleteAll: F[Unit]
 }
 
-object Boundary {
+object TodoPersistenceService {
   import cats.core.implicits._
 
-  def dsl[F[_]: Applicative](gateway: EntityGateway[F]): Boundary[F] =
-    new Boundary[F] {
+  def dsl[F[_]: Applicative](gateway: TodoRepository[F]): TodoPersistenceService[F] =
+    new TodoPersistenceService[F] {
       override def createOne(todo: Todo.Data): F[Todo.Existing] =
         createMany(Vector(todo)).map(_.head)
 

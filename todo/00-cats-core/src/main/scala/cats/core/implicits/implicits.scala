@@ -41,8 +41,8 @@ package object implicits {
       }
     }
 
-    override def map[A, B](f: Vector[A])(ab: A => B): Vector[B] =
-      f.map(ab)
+    override def map[A, B](fa: Vector[A])(ab: A => B): Vector[B] =
+      fa.map(ab)
   }
 
   final implicit class MonadOps[F[_]: Monad, A](private val fa: F[A]) {

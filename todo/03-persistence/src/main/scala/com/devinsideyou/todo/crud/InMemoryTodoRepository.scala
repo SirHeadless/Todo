@@ -5,14 +5,16 @@ package crud
 import cats.core.implicits._
 import cats.effect.Sync
 
-class InMemoryEntityGateway[F[_]: Sync] {
-  val dsl: EntityGateway[F] = {
-    var nextId: Int = 0
-    var state: Vector[Todo.Existing] = Vector.empty
+object InMemoryTodoRepository {
+  def dsl[F[_]: Sync] : TodoRepository[F] = {
+    new TodoRepository[F] {
+      var nextId: Int = 0
+      var state: Vector[Todo.Existing] = Vector.empty
 
-    new EntityGateway[F] {
-      override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] =
-        todos.traverse(writeOne)
+      override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] = {
+        val test = todos.traverse(writeOne)
+        test
+      }
 
       private def writeOne(todo: Todo): F[Todo.Existing] =
         todo match {

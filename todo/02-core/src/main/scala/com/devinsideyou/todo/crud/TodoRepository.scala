@@ -2,7 +2,7 @@ package com.devinsideyou
 package todo
 package crud
 
-trait EntityGateway[F[_]] {
+trait TodoRepository[F[_]] {
   def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]]
 
   def readManyById(ids: Vector[String]): F[Vector[Todo.Existing]]
