@@ -128,13 +128,13 @@ object Controller {
           withReadOne(id) { todo =>
             persistenceService
               .deleteOne(todo)
-              .tapAs(console.putSuccess("Successfully deleted the todo."))
+              .>>(console.putSuccess("Successfully deleted the todo."))
           }
         }
 
-      private def withIdPrompt(onValidId: String => Unit): F[Unit] =
+      private def withIdPrompt(onValidId: String => F[Unit]): F[Unit] =
         idPrompt.map(toId).flatMap {
-          case Right(id) => F.pure(onValidId(id))
+          case Right(id) => onValidId(id)
           case Left(error) => console.putError(error)
         }
 
@@ -151,10 +151,10 @@ object Controller {
           .deleteAll
           .>>(console.putSuccess("Successfully deleted all todos."))
 
-      private def withReadOne(id: String)(onFound: Todo.Existing => Unit): F[Unit] =
+      private def withReadOne(id: String)(onFound: Todo.Existing => F[Unit]): F[Unit] =
         persistenceService
           .readOneById(id)
-          .map {
+          .flatMap {
             case Some(todo) => onFound(todo)
             case None => displayNoTodosFoundMessage
           }
