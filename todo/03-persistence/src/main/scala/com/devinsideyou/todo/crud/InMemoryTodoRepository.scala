@@ -2,15 +2,16 @@ package com.devinsideyou
 package todo
 package crud
 
-import cats.core._
-import cats.core.implicits._
 import cats._
+import cats.implicits._
+import cats._
+import cats.effect.concurrent.Ref
 
 object InMemoryTodoRepository {
-  def dsl[F[_] : effect.Sync]: TodoRepository[F] = {
+  def dsl[F[_] : effect.Sync](state: Ref[F, Vector[Todo.Existing]]): TodoRepository[F] = {
     new TodoRepository[F] {
 
-      private val statement = Statement.dsl
+      private val statement = Statement.dsl(state)
 
       override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] = {
         todos.traverse(writeOne)

@@ -1,8 +1,8 @@
 package com.devinsideyou
 package todo
 
-import cats.core._
-import cats.core.implicits._
+import cats._
+import cats.implicits._
 
 trait FancyConsole[F[_]] {
   def getStrLnTrimmed: F[String]

@@ -2,8 +2,8 @@ package com.devinsideyou
 package todo
 package crud
 
-import cats.core._
-import cats.core.implicits._
+import cats._
+import cats.implicits._
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

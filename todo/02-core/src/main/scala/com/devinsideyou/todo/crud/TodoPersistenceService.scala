@@ -2,7 +2,7 @@ package com.devinsideyou
 package todo
 package crud
 
-import cats.core.{Applicative, Functor}
+import cats.{Applicative, Functor}
 
 trait TodoPersistenceService[F[_]] {
   def createOne(todo: Todo.Data): F[Todo.Existing]
@@ -22,7 +22,7 @@ trait TodoPersistenceService[F[_]] {
 }
 
 object TodoPersistenceService {
-  import cats.core.implicits._
+  import cats.implicits._
 
   def dsl[F[_]: Applicative](gateway: TodoRepository[F]): TodoPersistenceService[F] =
     new TodoPersistenceService[F] {

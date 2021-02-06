@@ -1,8 +1,9 @@
 package com.devinsideyou.todo.crud
 
 import cats._
-import cats.core._
-import cats.core.implicits._
+import cats._
+import cats.implicits._
+import cats.effect.concurrent.Ref
 import com.devinsideyou.Todo
 
 trait Statement[F[_]] {
@@ -19,30 +20,26 @@ trait Statement[F[_]] {
 
 object Statement {
 
-
-  def dsl[F[_]: effect.Sync]: Statement[F] =
+  def dsl[F[_] : Functor : FlatMap](state: Ref[F, Vector[Todo.Existing]]): Statement[F] =
     new Statement[F] {
-      var state: Vector[Todo.Existing] = Vector.empty
-      private val nextId: F[String] = F.delay(state.size.toString)
 
-      override def insertOne(data: Todo.Data): F[Todo.Existing] =
-        nextId
-        .map(Todo.Existing(_, data))
-        .flatMap { existingTodo =>
-          F.delay(state :+= existingTodo).as(existingTodo)
+      override def insertOne(data: Todo.Data): F[Todo.Existing] = {
+        state.modify { a =>
+          val newTodo = Todo.Existing(a.size.toString, data)
+          (a :+ newTodo) -> newTodo
         }
+      }
 
-      override def updateOne(todo: Todo.Existing): F[Todo.Existing] = F.delay{
-        state = state.filterNot(_.id == todo.id) :+ todo
+      override def updateOne(todo: Todo.Existing): F[Todo.Existing] = state.modify { s =>
+        (s.filterNot(_.id === todo.id) :+ todo) -> todo
+      }
 
-        todo
-      }.map(_ => todo)
-
-      override def selectAll: F[Vector[Todo.Existing]] = F.delay(state)
+      override def selectAll: F[Vector[Todo.Existing]] = state.get
 
 
-      override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] = F.delay{state = state.filterNot(todo => todos.map(_.id).contains(todo.id))}
+      override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] = state.update(_.filterNot(todo => todos.map(_.id).contains(todo.id)))
 
-      override def deleteAll: F[Unit] =  F.delay{state = Vector.empty}
+      override def deleteAll: F[Unit] =
+        state.set(Vector.empty)
     }
 }

@@ -3,6 +3,8 @@ package todo
 package crud
 
 import cats.effect.Sync
+import cats.effect.concurrent.Ref
+import cats.implicits._
 
 import java.time.format.DateTimeFormatter
 
@@ -11,13 +13,18 @@ object DependencyGraph {
     pattern: DateTimeFormatter,
     console: Console[F],
     random: Random[F]
-  ): Controller[F] =
-    Controller.dsl(
-      pattern = pattern,
-      persistenceService = TodoPersistenceService.dsl(
-        gateway = InMemoryTodoRepository.dsl
-      ),
-      console = FancyConsole.dsl(console),
-      random = random
-    )
+  ): F[Controller[F]] = {
+    Ref.of(Vector.empty[Todo.Existing]).map { state =>
+      Controller.dsl(
+        pattern = pattern,
+        persistenceService = TodoPersistenceService.dsl(
+          gateway = InMemoryTodoRepository.dsl(
+            state
+          )
+        ),
+        console = FancyConsole.dsl(console),
+        random = random
+      )
+    }
+  }
 }

@@ -1,9 +1,9 @@
 package com.devinsideyou
 package todo
 
-import cats.core._
+import cats._
 import cats.effect._
-import cats.core.implicits._
+import cats.implicits._
 
 
 trait Console[F[_]] {
@@ -14,19 +14,21 @@ trait Console[F[_]] {
 }
 
 object Console {
-  implicit def dsl[F[_]: Sync]: Console[F] =
-    new Console[F] {
+  implicit def dsl[F[_]: Sync]: F[Console[F]] =
+    F.delay {
+      new Console[F] {
 
-      override def getStrLn: F[String] =
-        F.delay(scala.io.StdIn.readLine)
+        override def getStrLn: F[String] =
+          F.delay(scala.io.StdIn.readLine)
 
-      override def getStrLnWithPrompt(prompt: String): F[String] =
-        F.delay(scala.io.StdIn.readLine(prompt))
+        override def getStrLnWithPrompt(prompt: String): F[String] =
+          F.delay(scala.io.StdIn.readLine(prompt))
 
-      override def putStrLn(line: String): F[Unit] =
-        F.delay(println(line))
+        override def putStrLn(line: String): F[Unit] =
+          F.delay(println(line))
 
-      override def putErrLn(line: String): F[Unit] =
-        F.delay(scala.Console.err.println(line))
+        override def putErrLn(line: String): F[Unit] =
+          F.delay(scala.Console.err.println(line))
+      }
     }
 }
