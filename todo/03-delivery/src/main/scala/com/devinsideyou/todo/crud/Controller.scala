@@ -102,7 +102,9 @@ object Controller {
 
       private def withDeadlinePrompt(onSuccess: LocalDateTime => F[Unit]): F[Unit] =
         deadlinePrompt.map(toLocalDateTime).flatMap {
-          case Right(deadline) => onSuccess(deadline)
+          case Right(deadline) => {
+            onSuccess(deadline)
+          }
           case Left(error) => console.putError(error)
         }
 
